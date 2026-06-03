@@ -1,13 +1,617 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gestion Commerciale</title>
-    <meta name="description" content="Espace privé de gestion commerciale" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Gestion Commerciale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg0:#0a0b0e;--bg1:#111318;--bg2:#181b22;--bg3:#1f2330;
+  --border:#2a2f3d;--border2:#353c4e;
+  --accent:#e8b84b;--accent2:#f0c866;
+  --green:#3dd68c;--red:#f05b5b;--blue:#5b9cf0;--purple:#9b72f5;
+  --text:#e8eaf0;--text2:#8892a4;--text3:#4e5768;
+  --mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;
+}
+body{background:var(--bg0);color:var(--text);font-family:var(--sans);min-height:100vh}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg0);position:relative;overflow:hidden}
+.login-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,#e8b84b12 0%,transparent 70%);pointer-events:none}
+.login-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.3;pointer-events:none}
+.login-box{position:relative;z-index:1;background:var(--bg1);border:1px solid var(--border2);border-radius:16px;padding:48px;width:380px;max-width:92vw;box-shadow:0 40px 80px #00000080}
+.login-logo{font-size:13px;letter-spacing:.2em;color:var(--accent);font-family:var(--mono);text-transform:uppercase;margin-bottom:8px}
+.login-title{font-size:28px;font-weight:800;margin-bottom:32px;line-height:1.2}
+.login-title span{color:var(--accent)}
+.login-label{font-size:11px;letter-spacing:.12em;color:var(--text2);text-transform:uppercase;margin-bottom:8px;display:block;font-family:var(--mono)}
+.login-input{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:8px;font-size:15px;font-family:var(--sans);outline:none;transition:border .2s;margin-bottom:24px}
+.login-input:focus{border-color:var(--accent)}
+.login-btn{width:100%;background:var(--accent);color:#0a0b0e;font-weight:700;font-family:var(--sans);font-size:15px;padding:14px;border:none;border-radius:8px;cursor:pointer;letter-spacing:.05em;transition:background .2s,transform .1s}
+.login-btn:hover{background:var(--accent2)}
+.login-btn:active{transform:scale(.98)}
+.login-err{color:var(--red);font-size:13px;margin-top:12px;text-align:center;font-family:var(--mono)}
+.app{display:flex;min-height:100vh}
+.sidebar{width:220px;min-height:100vh;background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid var(--border)}
+.sidebar-logo-tag{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;margin-bottom:4px}
+.sidebar-logo-name{font-size:16px;font-weight:800}
+.sidebar-nav{flex:1;padding:12px 0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--text2);border-left:2px solid transparent;transition:all .15s}
+.nav-item:hover{color:var(--text);background:var(--bg2)}
+.nav-item.active{color:var(--accent);background:var(--bg2);border-left-color:var(--accent)}
+.nav-icon{font-size:16px;width:20px;text-align:center}
+.sidebar-bottom{padding:16px 20px;border-top:1px solid var(--border)}
+.logout-btn{width:100%;background:transparent;border:1px solid var(--border);color:var(--text2);padding:8px;border-radius:6px;cursor:pointer;font-size:12px;font-family:var(--sans);transition:all .15s}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+.main{margin-left:220px;flex:1;padding:32px;min-height:100vh}
+.page-title{font-size:24px;font-weight:800;margin-bottom:8px}
+.page-sub{font-size:13px;color:var(--text2);margin-bottom:28px;font-family:var(--mono)}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.card{background:var(--bg1);border:1px solid var(--border);border-radius:12px;padding:20px}
+.stat-card{background:var(--bg1);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent)}
+.stat-card.green::before{background:var(--green)}
+.stat-card.blue::before{background:var(--blue)}
+.stat-card.purple::before{background:var(--purple)}
+.stat-label{font-size:11px;letter-spacing:.12em;color:var(--text2);text-transform:uppercase;font-family:var(--mono);margin-bottom:10px}
+.stat-value{font-size:26px;font-weight:800;font-family:var(--mono)}
+.stat-value.accent{color:var(--accent)}
+.stat-value.green{color:var(--green)}
+.stat-value.blue{color:var(--blue)}
+.stat-value.red{color:var(--red)}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:4px;font-family:var(--mono)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-family:var(--mono);font-weight:500}
+td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg2)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-family:var(--mono);font-weight:500}
+.badge-green{background:#3dd68c20;color:var(--green);border:1px solid #3dd68c40}
+.badge-red{background:#f05b5b20;color:var(--red);border:1px solid #f05b5b40}
+.badge-yellow{background:#e8b84b20;color:var(--accent);border:1px solid #e8b84b40}
+.section-title{font-size:14px;font-weight:700;margin-bottom:16px;letter-spacing:.05em;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:16px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-label{font-size:11px;color:var(--text2);letter-spacing:.1em;text-transform:uppercase;font-family:var(--mono)}
+.form-input,.form-select{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:14px;font-family:var(--sans);outline:none;transition:border .15s;width:100%}
+.form-input:focus,.form-select:focus{border-color:var(--accent)}
+.form-select option{background:var(--bg2)}
+.form-textarea{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:14px;font-family:var(--sans);outline:none;resize:vertical;min-height:80px;transition:border .15s;width:100%}
+.form-textarea:focus{border-color:var(--accent)}
+.btn{padding:10px 20px;border-radius:8px;font-size:13.5px;font-weight:700;font-family:var(--sans);cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--accent);color:#0a0b0e}
+.btn-primary:hover{background:var(--accent2)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text)}
+.btn-danger{background:transparent;color:var(--red);border:1px solid #f05b5b40}
+.btn-danger:hover{background:#f05b5b15}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-green{background:var(--green);color:#0a0b0e}
+.btn-green:hover{opacity:.9}
+.btn-green:disabled{opacity:.4;cursor:not-allowed}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.product-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s;position:relative}
+.product-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px #e8b84b18}
+.product-card:active{transform:scale(.97)}
+.product-card.out{opacity:.4;cursor:not-allowed}
+.product-card.out:hover{transform:none;border-color:var(--border)}
+.product-name{font-size:14px;font-weight:700;margin-bottom:6px}
+.product-ref{font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:10px}
+.product-price{font-size:20px;font-weight:800;color:var(--accent);font-family:var(--mono)}
+.product-stock{font-size:11px;color:var(--text2);margin-top:4px;font-family:var(--mono)}
+.product-marge{font-size:11px;color:var(--green);margin-top:2px;font-family:var(--mono)}
+.modal-overlay{position:fixed;inset:0;background:#00000099;z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal{background:var(--bg1);border:1px solid var(--border2);border-radius:16px;padding:32px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 40px 80px #00000080}
+.modal-title{font-size:20px;font-weight:800;margin-bottom:24px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.payment-opts{display:flex;gap:12px;margin:16px 0}
+.pay-btn{flex:1;padding:16px;border-radius:10px;border:2px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;font-size:14px;font-weight:700;font-family:var(--sans);transition:all .15s;text-align:center}
+.pay-btn:hover,.pay-btn.selected{border-color:var(--accent);color:var(--accent);background:#e8b84b10}
+.rentable{background:#3dd68c12;border:1px solid #3dd68c40;border-radius:12px;padding:20px}
+.deficitaire{background:#f05b5b12;border:1px solid #f05b5b40;border-radius:12px;padding:20px}
+.result-big{font-size:40px;font-weight:800;font-family:var(--mono)}
+.filter-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.filter-btn{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:12px;font-family:var(--mono);transition:all .15s}
+.filter-btn.active,.filter-btn:hover{border-color:var(--accent);color:var(--accent);background:#e8b84b10}
+.empty{text-align:center;padding:40px;color:var(--text3);font-family:var(--mono);font-size:13px}
+.divider{height:1px;background:var(--border);margin:24px 0}
+.tag-especes{background:#e8b84b18;color:var(--accent);border:1px solid #e8b84b30;padding:2px 8px;border-radius:4px;font-size:11px;font-family:var(--mono)}
+.tag-cb{background:#5b9cf018;color:var(--blue);border:1px solid #5b9cf030;padding:2px 8px;border-radius:4px;font-size:11px;font-family:var(--mono)}
+@media(max-width:900px){
+  .sidebar{width:60px}
+  .sidebar-logo-name,.nav-txt,.logout-btn{display:none}
+  .nav-item{justify-content:center;padding:14px}
+  .main{margin-left:60px;padding:20px 16px}
+  .grid4{grid-template-columns:repeat(2,1fr)}
+  .grid3{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .grid4,.grid3,.grid2{grid-template-columns:1fr}
+  .products-grid{grid-template-columns:repeat(2,1fr)}
+  .form-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useCallback}=React;
+const PASSWORD="admin2024";
+const FIXED_CHARGES={loyer:1580,electricite:30};
+const TOTAL_CHARGES=1610;
+const NAV=[
+  {id:"dashboard",label:"Tableau de bord",icon:"⬛"},
+  {id:"stock",label:"Marchandises",icon:"📦"},
+  {id:"ventes",label:"Vente rapide",icon:"💳"},
+  {id:"reparations",label:"Réparations",icon:"🔧"},
+  {id:"stats",label:"Statistiques",icon:"📊"},
+  {id:"historique",label:"Historique",icon:"📋"},
+];
+const fmt=n=>new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR"}).format(n||0);
+const today=()=>new Date().toISOString().split("T")[0];
+const monthKey=(d)=>(d||today()).slice(0,7);
+const useStorage=(key,init)=>{
+  const[val,setVal]=useState(()=>{try{const s=localStorage.getItem(key);return s?JSON.parse(s):init;}catch{return init;}});
+  const save=useCallback(v=>{setVal(v);try{localStorage.setItem(key,JSON.stringify(v));}catch{}},[key]);
+  return[val,save];
+};
+
+function Login({onLogin}){
+  const[pw,setPw]=useState("");
+  const[err,setErr]=useState("");
+  const submit=()=>{if(pw===PASSWORD){onLogin();}else{setErr("Mot de passe incorrect");setTimeout(()=>setErr(""),2000);}};
+  return(
+    <div className="login-wrap">
+      <div className="login-bg"/><div className="login-grid"/>
+      <div className="login-box">
+        <div className="login-logo">■ Espace privé</div>
+        <div className="login-title">Gestion<br/><span>Commerciale</span></div>
+        <label className="login-label">Mot de passe</label>
+        <input className="login-input" type="password" value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} autoFocus placeholder="••••••••"/>
+        <button className="login-btn" onClick={submit}>Accéder →</button>
+        {err&&<div className="login-err">{err}</div>}
+      </div>
+    </div>
+  );
+}
+
+function Modal({title,children,onClose}){
+  return(
+    <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="modal">
+        <div className="modal-title">{title}</div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function Dashboard({ventes,reparations,stock}){
+  const t=today(),m=monthKey();
+  const vj=ventes.filter(v=>v.date===t),vm=ventes.filter(v=>v.date.startsWith(m));
+  const rj=reparations.filter(r=>r.date===t),rm=reparations.filter(r=>r.date.startsWith(m));
+  const caJ=vj.reduce((a,v)=>a+v.prixVente,0)+rj.reduce((a,r)=>a+r.prixRep,0);
+  const caM=vm.reduce((a,v)=>a+v.prixVente,0)+rm.reduce((a,r)=>a+r.prixRep,0);
+  const bJ=vj.reduce((a,v)=>a+v.benefice,0)+rj.reduce((a,r)=>a+r.benefice,0);
+  const bM=vm.reduce((a,v)=>a+v.benefice,0)+rm.reduce((a,r)=>a+r.benefice,0);
+  const stTotal=stock.reduce((a,s)=>a+s.quantite,0);
+  return(
+    <div>
+      <div className="page-title">Tableau de bord</div>
+      <div className="page-sub">Aujourd'hui · {new Date().toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</div>
+      <div className="grid4">
+        <div className="stat-card"><div className="stat-label">CA du jour</div><div className="stat-value accent">{fmt(caJ)}</div><div className="stat-sub">{vj.length+rj.length} opérations</div></div>
+        <div className="stat-card"><div className="stat-label">CA du mois</div><div className="stat-value accent">{fmt(caM)}</div><div className="stat-sub">{new Date().toLocaleDateString("fr-FR",{month:"long"})}</div></div>
+        <div className="stat-card green"><div className="stat-label">Bénéfice jour</div><div className="stat-value green">{fmt(bJ)}</div><div className="stat-sub">après coûts</div></div>
+        <div className="stat-card green"><div className="stat-label">Bénéfice mois</div><div className="stat-value green">{fmt(bM)}</div><div className="stat-sub">avant charges fixes</div></div>
+      </div>
+      <div className="grid4">
+        <div className="stat-card blue"><div className="stat-label">Ventes réalisées</div><div className="stat-value blue">{vm.length}</div><div className="stat-sub">ce mois</div></div>
+        <div className="stat-card blue"><div className="stat-label">Réparations</div><div className="stat-value blue">{rm.length}</div><div className="stat-sub">ce mois</div></div>
+        <div className="stat-card purple"><div className="stat-label">Produits en stock</div><div className="stat-value" style={{color:"var(--purple)"}}>{stTotal}</div><div className="stat-sub">{stock.length} références</div></div>
+        <div className="stat-card"><div className="stat-label">Vendus aujourd'hui</div><div className="stat-value">{vj.length}</div><div className="stat-sub">articles</div></div>
+      </div>
+      <div className="grid2">
+        <div className="card">
+          <div className="section-title">Dernières ventes</div>
+          {vj.length===0?<div className="empty">Aucune vente aujourd'hui</div>:
+          <div className="table-wrap"><table><thead><tr><th>Produit</th><th>Prix</th><th>Bénéf.</th><th>Paie.</th></tr></thead>
+          <tbody>{vj.slice(-5).reverse().map(v=>(
+            <tr key={v.id}><td>{v.nom}</td><td>{fmt(v.prixVente)}</td><td style={{color:"var(--green)"}}>{fmt(v.benefice)}</td>
+            <td><span className={v.paiement==="especes"?"tag-especes":"tag-cb"}>{v.paiement==="especes"?"Espèces":"CB"}</span></td></tr>
+          ))}</tbody></table></div>}
+        </div>
+        <div className="card">
+          <div className="section-title">Dernières réparations</div>
+          {rj.length===0?<div className="empty">Aucune réparation aujourd'hui</div>:
+          <div className="table-wrap"><table><thead><tr><th>Client</th><th>Appareil</th><th>Prix</th><th>Bénéf.</th></tr></thead>
+          <tbody>{rj.slice(-5).reverse().map(r=>(
+            <tr key={r.id}><td>{r.client||"—"}</td><td>{r.appareil}</td><td>{fmt(r.prixRep)}</td>
+            <td style={{color:"var(--green)"}}>{fmt(r.benefice)}</td></tr>
+          ))}</tbody></table></div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StockPage({stock,setStock}){
+  const ef={nom:"",ref:"",prixAchat:"",prixVente:"",quantite:"",date:today()};
+  const[form,setForm]=useState(ef);
+  const[editId,setEditId]=useState(null);
+  const[show,setShow]=useState(false);
+  const save=()=>{
+    if(!form.nom||!form.prixAchat||!form.prixVente||!form.quantite)return;
+    if(editId){setStock(stock.map(s=>s.id===editId?{...s,...form,prixAchat:+form.prixAchat,prixVente:+form.prixVente,quantite:+form.quantite}:s));setEditId(null);}
+    else{setStock([...stock,{...form,id:Date.now(),prixAchat:+form.prixAchat,prixVente:+form.prixVente,quantite:+form.quantite}]);}
+    setForm(ef);setShow(false);
+  };
+  const startEdit=s=>{setForm({nom:s.nom,ref:s.ref,prixAchat:s.prixAchat,prixVente:s.prixVente,quantite:s.quantite,date:s.date});setEditId(s.id);setShow(true);};
+  const del=id=>{if(confirm("Supprimer ce produit ?"))setStock(stock.filter(s=>s.id!==id));};
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
+        <div><div className="page-title">Marchandises</div><div className="page-sub">{stock.length} références · {stock.reduce((a,s)=>a+s.quantite,0)} articles</div></div>
+        <button className="btn btn-primary" onClick={()=>{setForm(ef);setEditId(null);setShow(true);}}>+ Ajouter</button>
+      </div>
+      {show&&(
+        <div className="card" style={{marginBottom:24}}>
+          <div className="section-title">{editId?"Modifier le produit":"Nouveau produit"}</div>
+          <div className="form-grid">
+            <div className="form-group"><label className="form-label">Nom *</label><input className="form-input" value={form.nom} onChange={e=>setForm({...form,nom:e.target.value})}/></div>
+            <div className="form-group"><label className="form-label">Référence</label><input className="form-input" value={form.ref} onChange={e=>setForm({...form,ref:e.target.value})}/></div>
+            <div className="form-group"><label className="form-label">Prix achat (€) *</label><input className="form-input" type="number" value={form.prixAchat} onChange={e=>setForm({...form,prixAchat:e.target.value})}/></div>
+            <div className="form-group"><label className="form-label">Prix vente (€) *</label><input className="form-input" type="number" value={form.prixVente} onChange={e=>setForm({...form,prixVente:e.target.value})}/></div>
+            <div className="form-group"><label className="form-label">Quantité *</label><input className="form-input" type="number" value={form.quantite} onChange={e=>setForm({...form,quantite:e.target.value})}/></div>
+            <div className="form-group"><label className="form-label">Date entrée</label><input className="form-input" type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})}/></div>
+          </div>
+          {form.prixAchat&&form.prixVente&&<div style={{marginBottom:14,color:"var(--green)",fontFamily:"var(--mono)",fontSize:13}}>
+            Marge : {fmt(+form.prixVente-+form.prixAchat)} ({form.prixVente>0?(((+form.prixVente-+form.prixAchat)/+form.prixVente)*100).toFixed(1):0}%)
+          </div>}
+          <div style={{display:"flex",gap:10}}>
+            <button className="btn btn-primary" onClick={save}>{editId?"Enregistrer":"Ajouter"}</button>
+            <button className="btn btn-ghost" onClick={()=>{setShow(false);setEditId(null);}}>Annuler</button>
+          </div>
+        </div>
+      )}
+      <div className="card"><div className="table-wrap"><table>
+        <thead><tr><th>Produit</th><th>Réf.</th><th>Achat</th><th>Vente</th><th>Marge</th><th>Stock</th><th>Date</th><th></th></tr></thead>
+        <tbody>
+          {stock.length===0?<tr><td colSpan={8}><div className="empty">Aucun produit</div></td></tr>:
+          stock.map(s=>{
+            const mg=s.prixVente-s.prixAchat;
+            const mgP=s.prixVente>0?((mg/s.prixVente)*100).toFixed(1):0;
+            return(<tr key={s.id}>
+              <td style={{fontWeight:700}}>{s.nom}</td>
+              <td><span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--text3)"}}>{s.ref||"—"}</span></td>
+              <td>{fmt(s.prixAchat)}</td>
+              <td style={{color:"var(--accent)",fontWeight:700}}>{fmt(s.prixVente)}</td>
+              <td><span style={{color:mg>=0?"var(--green)":"var(--red)",fontFamily:"var(--mono)",fontSize:12}}>{fmt(mg)} ({mgP}%)</span></td>
+              <td><span className={s.quantite===0?"badge badge-red":s.quantite<=2?"badge badge-yellow":"badge badge-green"}>{s.quantite}</span></td>
+              <td style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--text2)"}}>{s.date}</td>
+              <td><div style={{display:"flex",gap:6}}>
+                <button className="btn btn-ghost btn-sm" onClick={()=>startEdit(s)}>✎</button>
+                <button className="btn btn-danger btn-sm" onClick={()=>del(s.id)}>✕</button>
+              </div></td>
+            </tr>);
+          })}
+        </tbody>
+      </table></div></div>
+    </div>
+  );
+}
+
+function VentePage({stock,setStock,ventes,setVentes}){
+  const[sel,setSel]=useState(null);
+  const[paie,setPaie]=useState("");
+  const[search,setSearch]=useState("");
+  const filtered=stock.filter(s=>s.nom.toLowerCase().includes(search.toLowerCase())||s.ref.toLowerCase().includes(search.toLowerCase()));
+  const doSell=()=>{
+    if(!paie||!sel)return;
+    const s=stock.find(x=>x.id===sel.id);
+    if(!s||s.quantite<=0)return;
+    setVentes([...ventes,{id:Date.now(),nom:s.nom,ref:s.ref,prixVente:s.prixVente,prixAchat:s.prixAchat,benefice:s.prixVente-s.prixAchat,paiement:paie,date:today(),heure:new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})}]);
+    setStock(stock.map(st=>st.id===sel.id?{...st,quantite:st.quantite-1}:st));
+    setSel(null);setPaie("");
+  };
+  return(
+    <div>
+      <div className="page-title">Vente rapide</div>
+      <div className="page-sub">Cliquez sur un produit pour l'enregistrer comme vendu</div>
+      <input className="form-input" style={{marginBottom:20,maxWidth:320}} placeholder="🔍 Rechercher..." value={search} onChange={e=>setSearch(e.target.value)}/>
+      <div className="products-grid">
+        {filtered.length===0?<div className="empty">Aucun produit trouvé</div>:
+        filtered.map(s=>(
+          <div key={s.id} className={`product-card${s.quantite<=0?" out":""}`} onClick={()=>s.quantite>0&&setSel(s)}>
+            <div className="product-name">{s.nom}</div>
+            <div className="product-ref">{s.ref||"Sans réf."}</div>
+            <div className="product-price">{fmt(s.prixVente)}</div>
+            <div className="product-stock">Stock : {s.quantite===0?"Épuisé":`${s.quantite} unité(s)`}</div>
+            <div className="product-marge">+{fmt(s.prixVente-s.prixAchat)} marge</div>
+          </div>
+        ))}
+      </div>
+      {sel&&(
+        <Modal title="Confirmer la vente" onClose={()=>setSel(null)}>
+          <div style={{marginBottom:16}}>
+            <div style={{fontWeight:700,fontSize:18,marginBottom:4}}>{sel.nom}</div>
+            <div style={{fontFamily:"var(--mono)",color:"var(--accent)",fontSize:22,fontWeight:800}}>{fmt(sel.prixVente)}</div>
+            <div style={{fontFamily:"var(--mono)",color:"var(--green)",fontSize:13,marginTop:4}}>Bénéfice : {fmt(sel.prixVente-sel.prixAchat)}</div>
+          </div>
+          <div style={{color:"var(--text2)",fontSize:13,marginBottom:8}}>Mode de paiement</div>
+          <div className="payment-opts">
+            <button className={`pay-btn${paie==="especes"?" selected":""}`} onClick={()=>setPaie("especes")}>💵 Espèces</button>
+            <button className={`pay-btn${paie==="cb"?" selected":""}`} onClick={()=>setPaie("cb")}>💳 Carte bancaire</button>
+          </div>
+          <div className="modal-actions">
+            <button className="btn btn-ghost" onClick={()=>setSel(null)}>Annuler</button>
+            <button className="btn btn-green" disabled={!paie} onClick={doSell}>✓ Valider la vente</button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+function RepPage({reparations,setReparations}){
+  const ef={client:"",appareil:"",panne:"",prixRep:"",prixPieces:"",date:today(),paiement:"especes"};
+  const[form,setForm]=useState(ef);
+  const[editId,setEditId]=useState(null);
+  const[show,setShow]=useState(false);
+  const save=()=>{
+    if(!form.appareil||!form.prixRep)return;
+    const rep={...form,prixRep:+form.prixRep,prixPieces:+form.prixPieces||0,benefice:+form.prixRep-(+form.prixPieces||0)};
+    if(editId){setReparations(reparations.map(r=>r.id===editId?{...rep,id:editId}:r));setEditId(null);}
+    else{setReparations([...reparations,{...rep,id:Date.now()}]);}
+    setForm(ef);setShow(false);
+  };
+  const startEdit=r=>{setForm({client:r.client,appareil:r.appareil,panne:r.panne,prixRep:r.prixRep,prixPieces:r.prixPieces,date:r.date,paiement:r.paiement});setEditId(r.id);setShow(true);};
+  const del=id=>{if(confirm("Supprimer cette réparation ?"))setReparations(reparations.filter(r=>r.id!==id));};
+  const sorted=[...reparations].sort((a,b)=>b.id-a.id);
+  return(
+    <div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:24}}>
+        <div><div className="page-title">Réparations</div><div className="page-sub">{reparations.length} réparations enregistrées</div></div>
+        <button className="btn btn-primary" onClick={()=>{setForm(ef);setEditId(null);setShow(true);}}>+ Nouvelle réparation</button>
+      </div>
+      {show&&(
+        <div className="card" style={{marginBottom:24}}>
+          <div className="section-title">{editId?"Modifier":"Nouvelle réparation"}</div>
+          <div className="form-grid">
+            <div className="form-group"><label className="form-label">Client</label><input className="form-input" value={form.client} onChange={e=>setForm({...form,client:e.target.value})} placeholder="Optionnel"/></div>
+            <div className="form-group"><label className="form-label">Appareil *</label><input className="form-input" value={form.appareil} onChange={e=>setForm({...form,appareil:e.target.value})}/></div>
+            <div className="form-group" style={{gridColumn:"1 / -1"}}><label className="form-label">Description panne</label><textarea className="form-textarea" value={form.panne} onChange={e=>setForm({...form,panne:e.target.value})}/></div>
+            <div className="form-group"><label className="form-label">Prix réparation (€) *</label><input className="form-input" type="number" value={form.prixRep} onChange={e=>setForm({...form,prixRep:e.target.value})}/></div>
+            <div className="form-group"><label className="form-label">Coût pièces (€)</label><input className="form-input" type="number" value={form.prixPieces} onChange={e=>setForm({...form,prixPieces:e.target.value})}/></div>
+            <div className="form-group"><label className="form-label">Date</label><input className="form-input" type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})}/></div>
+            <div className="form-group"><label className="form-label">Paiement</label>
+              <select className="form-select" value={form.paiement} onChange={e=>setForm({...form,paiement:e.target.value})}>
+                <option value="especes">Espèces</option><option value="cb">Carte bancaire</option>
+              </select>
+            </div>
+          </div>
+          {form.prixRep&&<div style={{marginBottom:14,color:"var(--green)",fontFamily:"var(--mono)",fontSize:13}}>
+            Bénéfice : {fmt(+form.prixRep-(+form.prixPieces||0))}
+          </div>}
+          <div style={{display:"flex",gap:10}}>
+            <button className="btn btn-primary" onClick={save}>{editId?"Enregistrer":"Ajouter"}</button>
+            <button className="btn btn-ghost" onClick={()=>{setShow(false);setEditId(null);}}>Annuler</button>
+          </div>
+        </div>
+      )}
+      <div className="card"><div className="table-wrap"><table>
+        <thead><tr><th>Date</th><th>Client</th><th>Appareil</th><th>Panne</th><th>Prix</th><th>Pièces</th><th>Bénéf.</th><th>Paie.</th><th></th></tr></thead>
+        <tbody>
+          {sorted.length===0?<tr><td colSpan={9}><div className="empty">Aucune réparation</div></td></tr>:
+          sorted.map(r=>(
+            <tr key={r.id}>
+              <td style={{fontFamily:"var(--mono)",fontSize:12}}>{r.date}</td>
+              <td>{r.client||"—"}</td>
+              <td style={{fontWeight:700}}>{r.appareil}</td>
+              <td style={{color:"var(--text2)",fontSize:12}}>{r.panne?.slice(0,50)}{r.panne?.length>50?"…":""}</td>
+              <td style={{color:"var(--accent)",fontWeight:700}}>{fmt(r.prixRep)}</td>
+              <td style={{color:"var(--text2)"}}>{fmt(r.prixPieces)}</td>
+              <td style={{color:"var(--green)",fontFamily:"var(--mono)"}}>{fmt(r.benefice)}</td>
+              <td><span className={r.paiement==="especes"?"tag-especes":"tag-cb"}>{r.paiement==="especes"?"Espèces":"CB"}</span></td>
+              <td><div style={{display:"flex",gap:6}}>
+                <button className="btn btn-ghost btn-sm" onClick={()=>startEdit(r)}>✎</button>
+                <button className="btn btn-danger btn-sm" onClick={()=>del(r.id)}>✕</button>
+              </div></td>
+            </tr>
+          ))}
+        </tbody>
+      </table></div></div>
+    </div>
+  );
+}
+
+function StatsPage({ventes,reparations}){
+  const m=monthKey();
+  const vm=ventes.filter(v=>v.date.startsWith(m));
+  const rm=reparations.filter(r=>r.date.startsWith(m));
+  const caV=vm.reduce((a,v)=>a+v.prixVente,0);
+  const caR=rm.reduce((a,r)=>a+r.prixRep,0);
+  const caT=caV+caR;
+  const cM=vm.reduce((a,v)=>a+v.prixAchat,0);
+  const cP=rm.reduce((a,r)=>a+r.prixPieces,0);
+  const bB=vm.reduce((a,v)=>a+v.benefice,0)+rm.reduce((a,r)=>a+r.benefice,0);
+  const res=caT-cM-cP-TOTAL_CHARGES;
+  const mN=caT>0?((res/caT)*100).toFixed(1):0;
+  const tE=vm.filter(v=>v.paiement==="especes").reduce((a,v)=>a+v.prixVente,0)+rm.filter(r=>r.paiement==="especes").reduce((a,r)=>a+r.prixRep,0);
+  const tC=vm.filter(v=>v.paiement==="cb").reduce((a,v)=>a+v.prixVente,0)+rm.filter(r=>r.paiement==="cb").reduce((a,r)=>a+r.prixRep,0);
+  return(
+    <div>
+      <div className="page-title">Statistiques financières</div>
+      <div className="page-sub">{new Date().toLocaleDateString("fr-FR",{month:"long",year:"numeric"})}</div>
+      <div className="grid3">
+        <div className="stat-card"><div className="stat-label">CA marchandises</div><div className="stat-value accent">{fmt(caV)}</div><div className="stat-sub">{vm.length} ventes</div></div>
+        <div className="stat-card"><div className="stat-label">CA réparations</div><div className="stat-value accent">{fmt(caR)}</div><div className="stat-sub">{rm.length} réparations</div></div>
+        <div className="stat-card"><div className="stat-label">CA total</div><div className="stat-value accent">{fmt(caT)}</div><div className="stat-sub">ce mois</div></div>
+      </div>
+      <div className="grid2">
+        <div className="card">
+          <div className="section-title">Paiements</div>
+          {[["💵 Total Espèces","tag-especes",tE],["💳 Total CB","tag-cb",tC]].map(([l,cls,v])=>(
+            <div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+              <span style={{color:"var(--text2)",fontSize:13}}>{l}</span>
+              <span className={cls}>{fmt(v)}</span>
+            </div>
+          ))}
+        </div>
+        <div className="card">
+          <div className="section-title">Charges fixes</div>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}><span style={{color:"var(--text2)"}}>Loyer boutique</span><span style={{fontFamily:"var(--mono)"}}>{fmt(FIXED_CHARGES.loyer)}</span></div>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}><span style={{color:"var(--text2)"}}>Électricité</span><span style={{fontFamily:"var(--mono)"}}>{fmt(FIXED_CHARGES.electricite)}</span></div>
+          <div className="divider" style={{margin:"4px 0 12px"}}/>
+          <div style={{display:"flex",justifyContent:"space-between",fontWeight:700}}><span>Total charges</span><span style={{color:"var(--red)",fontFamily:"var(--mono)"}}>{fmt(TOTAL_CHARGES)}</span></div>
+        </div>
+      </div>
+      <div className="card" style={{marginBottom:24}}>
+        <div className="section-title">Analyse de rentabilité</div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(190px,1fr))",gap:16,marginBottom:24}}>
+          {[["CA total",caT,"var(--accent)"],["− Coût marchandises",-cM,"var(--red)"],["− Coût pièces",-cP,"var(--red)"],["= Bénéfice brut",bB,"var(--green)"],["− Charges fixes",-TOTAL_CHARGES,"var(--red)"]].map(([l,v,c])=>(
+            <div key={l} style={{padding:"12px 16px",background:"var(--bg2)",borderRadius:8}}>
+              <div style={{fontSize:11,color:"var(--text2)",fontFamily:"var(--mono)",marginBottom:6}}>{l}</div>
+              <div style={{fontFamily:"var(--mono)",fontWeight:800,fontSize:18,color:c}}>{v<0?`−${fmt(-v)}`:fmt(v)}</div>
+            </div>
+          ))}
+        </div>
+        <div className={res>=0?"rentable":"deficitaire"}>
+          <div style={{fontSize:12,fontFamily:"var(--mono)",color:res>=0?"var(--green)":"var(--red)",marginBottom:8,letterSpacing:".15em",textTransform:"uppercase"}}>
+            {res>=0?"✓ Mois rentable":"✗ Mois déficitaire"}
+          </div>
+          <div className="result-big" style={{color:res>=0?"var(--green)":"var(--red)"}}>{res>=0?"+":""}{fmt(res)}</div>
+          <div style={{fontFamily:"var(--mono)",fontSize:13,color:"var(--text2)",marginTop:8}}>Marge nette : {mN}%</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HistoriquePage({ventes,reparations}){
+  const[tab,setTab]=useState("ventes");
+  const[filter,setFilter]=useState("mois");
+  const fd=d=>{
+    const dt=new Date(d),now=new Date();
+    if(filter==="jour")return d===today();
+    if(filter==="semaine"){const s=new Date(now);s.setDate(now.getDate()-7);return dt>=s;}
+    if(filter==="mois")return d.startsWith(monthKey());
+    if(filter==="annee")return d.startsWith(new Date().getFullYear().toString());
+    return true;
+  };
+  const fV=[...ventes].filter(v=>fd(v.date)).sort((a,b)=>b.id-a.id);
+  const fR=[...reparations].filter(r=>fd(r.date)).sort((a,b)=>b.id-a.id);
+  const labels={jour:"Aujourd'hui",semaine:"7 derniers jours",mois:"Ce mois",annee:"Cette année"};
+  return(
+    <div>
+      <div className="page-title">Historique</div>
+      <div className="filter-bar">
+        {["jour","semaine","mois","annee"].map(f=>(
+          <button key={f} className={`filter-btn${filter===f?" active":""}`} onClick={()=>setFilter(f)}>{labels[f]}</button>
+        ))}
+      </div>
+      <div style={{display:"flex",gap:8,marginBottom:20}}>
+        <button className={`btn ${tab==="ventes"?"btn-primary":"btn-ghost"}`} onClick={()=>setTab("ventes")}>Ventes ({fV.length})</button>
+        <button className={`btn ${tab==="reparations"?"btn-primary":"btn-ghost"}`} onClick={()=>setTab("reparations")}>Réparations ({fR.length})</button>
+      </div>
+      {tab==="ventes"&&(
+        <div className="card"><div className="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Heure</th><th>Produit</th><th>Achat</th><th>Vente</th><th>Bénéfice</th><th>Paiement</th></tr></thead>
+          <tbody>
+            {fV.length===0?<tr><td colSpan={7}><div className="empty">Aucune vente sur cette période</div></td></tr>:
+            fV.map(v=>(
+              <tr key={v.id}>
+                <td style={{fontFamily:"var(--mono)",fontSize:12}}>{v.date}</td>
+                <td style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--text3)"}}>{v.heure||"—"}</td>
+                <td style={{fontWeight:700}}>{v.nom}</td>
+                <td style={{color:"var(--text2)"}}>{fmt(v.prixAchat)}</td>
+                <td style={{color:"var(--accent)",fontWeight:700}}>{fmt(v.prixVente)}</td>
+                <td style={{color:"var(--green)",fontFamily:"var(--mono)"}}>{fmt(v.benefice)}</td>
+                <td><span className={v.paiement==="especes"?"tag-especes":"tag-cb"}>{v.paiement==="especes"?"Espèces":"CB"}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table></div>
+        {fV.length>0&&<div style={{display:"flex",gap:24,padding:"16px 14px 0",borderTop:"1px solid var(--border)",fontFamily:"var(--mono)",fontSize:13}}>
+          <span>CA : <strong style={{color:"var(--accent)"}}>{fmt(fV.reduce((a,v)=>a+v.prixVente,0))}</strong></span>
+          <span>Bénéfice : <strong style={{color:"var(--green)"}}>{fmt(fV.reduce((a,v)=>a+v.benefice,0))}</strong></span>
+        </div>}
+        </div>
+      )}
+      {tab==="reparations"&&(
+        <div className="card"><div className="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Client</th><th>Appareil</th><th>Prix</th><th>Pièces</th><th>Bénéfice</th><th>Paiement</th></tr></thead>
+          <tbody>
+            {fR.length===0?<tr><td colSpan={7}><div className="empty">Aucune réparation sur cette période</div></td></tr>:
+            fR.map(r=>(
+              <tr key={r.id}>
+                <td style={{fontFamily:"var(--mono)",fontSize:12}}>{r.date}</td>
+                <td>{r.client||"—"}</td>
+                <td style={{fontWeight:700}}>{r.appareil}</td>
+                <td style={{color:"var(--accent)",fontWeight:700}}>{fmt(r.prixRep)}</td>
+                <td style={{color:"var(--text2)"}}>{fmt(r.prixPieces)}</td>
+                <td style={{color:"var(--green)",fontFamily:"var(--mono)"}}>{fmt(r.benefice)}</td>
+                <td><span className={r.paiement==="especes"?"tag-especes":"tag-cb"}>{r.paiement==="especes"?"Espèces":"CB"}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table></div>
+        {fR.length>0&&<div style={{display:"flex",gap:24,padding:"16px 14px 0",borderTop:"1px solid var(--border)",fontFamily:"var(--mono)",fontSize:13}}>
+          <span>CA : <strong style={{color:"var(--accent)"}}>{fmt(fR.reduce((a,r)=>a+r.prixRep,0))}</strong></span>
+          <span>Bénéfice : <strong style={{color:"var(--green)"}}>{fmt(fR.reduce((a,r)=>a+r.benefice,0))}</strong></span>
+        </div>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function App(){
+  const[auth,setAuth]=useStorage("gc_auth",false);
+  const[page,setPage]=useState("dashboard");
+  const[stock,setStock]=useStorage("gc_stock",[]);
+  const[ventes,setVentes]=useStorage("gc_ventes",[]);
+  const[reps,setReps]=useStorage("gc_reparations",[]);
+  if(!auth)return <Login onLogin={()=>setAuth(true)}/>;
+  return(
+    <div className="app">
+      <aside className="sidebar">
+        <div className="sidebar-logo">
+          <div className="sidebar-logo-tag">■ Privé</div>
+          <div className="sidebar-logo-name">TechShop</div>
+        </div>
+        <nav className="sidebar-nav">
+          {NAV.map(item=>(
+            <div key={item.id} className={`nav-item${page===item.id?" active":""}`} onClick={()=>setPage(item.id)}>
+              <span className="nav-icon">{item.icon}</span>
+              <span className="nav-txt">{item.label}</span>
+            </div>
+          ))}
+        </nav>
+        <div className="sidebar-bottom">
+          <button className="logout-btn" onClick={()=>setAuth(false)}>Déconnexion</button>
+        </div>
+      </aside>
+      <main className="main">
+        {page==="dashboard"&&<Dashboard ventes={ventes} reparations={reps} stock={stock}/>}
+        {page==="stock"&&<StockPage stock={stock} setStock={setStock}/>}
+        {page==="ventes"&&<VentePage stock={stock} setStock={setStock} ventes={ventes} setVentes={setVentes}/>}
+        {page==="reparations"&&<RepPage reparations={reps} setReparations={setReps}/>}
+        {page==="stats"&&<StatsPage ventes={ventes} reparations={reps}/>}
+        {page==="historique"&&<HistoriquePage ventes={ventes} reparations={reps}/>}
+      </main>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
 </html>
